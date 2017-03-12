@@ -3,18 +3,18 @@ import os
 import time
 import datetime
 
-#Variables
+# Variables
 LOGFILE_RELATIVE_PATH = "/logfile.csv"
 CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
 print(CURRENT_PATH)
 
-#Sytem Information Methods
+# Sytem Information Methods
 def getCPUtemperature():  
     return os.popen('vcgencmd measure_temp').readline()
 
 def getVolts():
     res = os.popen('vcgencmd measure_volts').readline()
-    return(res.replace("volt=","").replace("V\n",""))
+    return(res.replace("volt=", "").replace("V\n", ""))
 
 def getCPUClock():
     res = os.popen('vcgencmd measure_clock arm | tr -d "frequency(45)="').readline()
@@ -26,7 +26,7 @@ def getRAMinfo():
     while 1:
         i = i + 1
         line = p.readline()
-        if i==2:
+        if i == 2:
             return(line.split()[1:4])
 
 def getDiskUsePercentage():
@@ -41,12 +41,21 @@ def getUSVExtCurrent():
     res = os.popen('python piusv.py U_ext').readline();
     return res
 
-#Rumpf
-#Load Files
-loggingfile = open(CURRENT_PATH + LOGFILE_RELATIVE_PATH, "a")
+def isUSVSoftwareRunning():
+    return True
 
-#Generate Timestamp
-timestamp = datetime.datetime.now().strftime("%d.%m.%y;%H:%M:%S")
+# Rumpf
+while True:
+    
+    # Load Files
+    loggingfile = open(CURRENT_PATH + LOGFILE_RELATIVE_PATH, "a")
 
-#loggingfile.write("\n{};{};{};{};{};{};{};{};{}".format(timestamp, "CPU_Usage", "CPU_Temp", "CPU_Clock", "MEMORY_USE","DISK_USE","USV_BATT_CURR","RASP_CURR","USV_EXT_CURR"))
-loggingfile.write("\n{};{};{};{};{};{};{};{}".format(timestamp, "CPU_Usage", getCPUtemperature(), getCPUClock(), getRAMinfo()[2], getDiskUsePercentage(), getUSVBatteryCurrent(),getVolts(),getUSVExtCurrent()))
+    # Generate Timestamp
+    timestamp = datetime.datetime.now().strftime("%d.%m.%y;%H:%M:%S")
+    print CURRENT_PATH + LOGFILE_RELATIVE_PATH
+    loggingfile.write("\n{};{};{};{};{};{};{};{};{};{}".format(timestamp, "CPU_Usage", "CPU_Temp", "CPU_Clock", "MEMORY_USE","DISK_USE","USV_BATT_CURR","RASP_CURR","USV_EXT_CURR","USV_SOFTWARE_RUNNING"))
+    #loggingfile.write("\n{};{};{};{};{};{};{};{};{}".format(timestamp, "CPU_Usage", getCPUtemperature(), getCPUClock(), getRAMinfo()[2], getDiskUsePercentage(), getUSVBatteryCurrent(), getVolts(), getUSVExtCurrent(),"NOT IMPLEMENTED"))
+    
+    loggingfile.close()
+    
+    time.sleep(10)
